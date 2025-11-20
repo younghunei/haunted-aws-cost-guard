@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple PDF Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: #fb923c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #e8832e;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .sample-data {
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .service-item {
+            background: rgba(255, 107, 53, 0.2);
+            border: 2px solid #fb923c;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .service-cost {
+            color: #fb923c;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎃 Simple PDF Generation Test</h1>
+        <p>This page tests the simple PDF generation method that creates PDFs directly from data without DOM capture.</p>
+        
+        <div>
+            <button onclick="generateSimplePDF()" id="simplePdfBtn">Generate Simple PDF</button>
+            <button onclick="generateWithSampleData()" id="sampleDataBtn">Generate PDF with Sample Data</button>
+        </div>
+        
+        <div id="log" class="log">Ready for testing...\n</div>
+        
+        <div class="sample-data">
+            <h2>👻 Sample Haunted Mansion Data</h2>
+            <div class="service-item">
+                <div>
+                    <h3>EC2 Instances</h3>
+                    <p>Compute services running in the haunted cloud</p>
+                </div>
+                <div class="service-cost">$245.67</div>
+            </div>
+            <div class="service-item">
+                <div>
+                    <h3>S3 Storage</h3>
+                    <p>Ghostly files stored in the ethereal buckets</p>
+                </div>
+                <div class="service-cost">$89.23</div>
+            </div>
+            <div class="service-item">
+                <div>
+                    <h3>RDS Database</h3>
+                    <p>Spooky data haunting the relational realm</p>
+                </div>
+                <div class="service-cost">$156.78</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logEl = document.getElementById('log');
+            logEl.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        async function generateSimplePDF() {
+            log('Starting simple PDF generation...');
+            
+            const btn = document.getElementById('simplePdfBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Add title
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(24);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('👻 Haunted AWS Cost Guard Report', 20, 25);
+
+                // Add timestamp
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                const timestamp = new Date().toLocaleString();
+                pdf.text(`Generated: ${timestamp}`, 20, 35);
+
+                // Add content
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(14);
+                pdf.setTextColor(0, 0, 0);
+                pdf.text('This is a simple PDF generated without DOM capture.', 20, 60);
+                pdf.text('It demonstrates that the PDF generation library is working correctly.', 20, 75);
+                
+                // Add some decorative elements
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(16);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('🎃 Features:', 20, 100);
+                
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(12);
+                pdf.setTextColor(0, 0, 0);
+                pdf.text('• Fast and reliable PDF generation', 25, 115);
+                pdf.text('• No dependency on DOM capture', 25, 125);
+                pdf.text('• Works with any data structure', 25, 135);
+                pdf.text('• Consistent formatting and layout', 25, 145);
+
+                // Add footer
+                pdf.setFont('helvetica', 'italic');
+                pdf.setFontSize(8);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text('Generated by Haunted AWS Cost Guard - Simple PDF Test', 20, pdf.internal.pageSize.getHeight() - 10);
+
+                // Save PDF
+                const filename = `simple-test-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                pdf.save(filename);
+                
+                log('✅ Simple PDF generated successfully!');
+                log(`   - Filename: ${filename}`);
+                
+            } catch (error) {
+                log('❌ Simple PDF generation failed: ' + error.message);
+                console.error('Simple PDF generation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Simple PDF';
+            }
+        }
+
+        async function generateWithSampleData() {
+            log('Starting PDF generation with sample data...');
+            
+            const btn = document.getElementById('sampleDataBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                // Sample data structure
+                const sampleServices = [
+                    {
+                        service: 'ec2',
+                        displayName: 'EC2 Instances',
+                        totalCost: 245.67,
+                        currency: 'USD',
+                        budgetUtilization: 0.82,
+                        trend: 'increasing'
+                    },
+                    {
+                        service: 's3',
+                        displayName: 'S3 Storage',
+                        totalCost: 89.23,
+                        currency: 'USD',
+                        budgetUtilization: 0.45,
+                        trend: 'stable'
+                    },
+                    {
+                        service: 'rds',
+                        displayName: 'RDS Database',
+                        totalCost: 156.78,
+                        currency: 'USD',
+                        budgetUtilization: 1.12,
+                        trend: 'decreasing'
+                    }
+                ];
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Add title
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(24);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('👻 Haunted AWS Cost Guard Report', 20, 25);
+
+                // Add timestamp
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                const timestamp = new Date().toLocaleString();
+                pdf.text(`Generated: ${timestamp}`, 20, 35);
+
+                // Add summary
+                let yPos = 55;
+                const totalCost = sampleServices.reduce((sum, service) => sum + service.totalCost, 0);
+                
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(16);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('Cost Summary', 20, yPos);
+                yPos += 15;
+
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(14);
+                pdf.setTextColor(0, 0, 0);
+                pdf.text(`Total Cost: $${totalCost.toFixed(2)} USD`, 20, yPos);
+                yPos += 10;
+                pdf.text(`Services: ${sampleServices.length}`, 20, yPos);
+                yPos += 10;
+                pdf.text('Mode: DEMO', 20, yPos);
+                yPos += 20;
+
+                // Add services list
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(14);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('Service Details', 20, yPos);
+                yPos += 15;
+
+                sampleServices.forEach((service, index) => {
+                    // Service name
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(12);
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.text(`${index + 1}. ${service.displayName}`, 25, yPos);
+                    yPos += 8;
+                    
+                    // Service details
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(60, 60, 60);
+                    pdf.text(`   Cost: $${service.totalCost.toFixed(2)} ${service.currency}`, 25, yPos);
+                    yPos += 6;
+                    
+                    const budgetUsage = (service.budgetUtilization * 100).toFixed(1);
+                    const budgetColor = service.budgetUtilization > 1 ? [255, 0, 0] : 
+                                       service.budgetUtilization > 0.8 ? [255, 165, 0] : [0, 128, 0];
+                    pdf.setTextColor(budgetColor[0], budgetColor[1], budgetColor[2]);
+                    pdf.text(`   Budget Usage: ${budgetUsage}%`, 25, yPos);
+                    yPos += 6;
+                    
+                    pdf.setTextColor(60, 60, 60);
+                    pdf.text(`   Trend: ${service.trend}`, 25, yPos);
+                    yPos += 10;
+                });
+
+                // Add footer
+                pdf.setFont('helvetica', 'italic');
+                pdf.setFontSize(8);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text('Generated by Haunted AWS Cost Guard', 20, pdf.internal.pageSize.getHeight() - 10);
+
+                // Save PDF
+                const filename = `haunted-mansion-sample-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                pdf.save(filename);
+                
+                log('✅ Sample data PDF generated successfully!');
+                log(`   - Filename: ${filename}`);
+                log(`   - Total cost: $${totalCost.toFixed(2)}`);
+                log(`   - Services: ${sampleServices.length}`);
+                
+            } catch (error) {
+                log('❌ Sample data PDF generation failed: ' + error.message);
+                console.error('Sample data PDF generation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate PDF with Sample Data';
+            }
+        }
+
+        // Auto-run basic test on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, ready for PDF testing...');
+                log('Click "Generate Simple PDF" for basic test');
+                log('Click "Generate PDF with Sample Data" for data-driven test');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

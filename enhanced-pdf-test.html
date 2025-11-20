@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced PDF DOM Capture Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: #fb923c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #e8832e;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        #mansion-container {
+            width: 1000px;
+            height: 700px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mansion-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .mansion-title {
+            color: #fb923c;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+        
+        .mansion-subtitle {
+            color: #ccc;
+            font-size: 16px;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .service-room {
+            background: rgba(255, 107, 53, 0.2);
+            border: 2px solid #fb923c;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-room:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .service-room::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .service-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .service-cost {
+            color: #fb923c;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .service-details {
+            font-size: 14px;
+            color: #ccc;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .budget-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .budget-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .budget-safe { background: #10b981; }
+        .budget-warning { background: #f59e0b; }
+        .budget-danger { background: #ef4444; }
+        
+        .mansion-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            border-top: 1px solid rgba(255, 107, 53, 0.3);
+            padding-top: 15px;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-ghost {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .pdf-export-ready * {
+            animation: none !important;
+            transition: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎃 Enhanced PDF DOM Capture Test</h1>
+        <p>This page tests the enhanced DOM capture method that properly captures the entire mansion layout with all visual elements.</p>
+        
+        <div>
+            <button onclick="testEnhancedPDF()" id="enhancedBtn">Generate Enhanced PDF</button>
+            <button onclick="scrollToMansion()" id="scrollBtn">Scroll to Mansion</button>
+            <button onclick="resetMansion()" id="resetBtn">Reset Mansion</button>
+        </div>
+        
+        <div id="log" class="log">Ready for enhanced PDF testing...\n</div>
+    </div>
+
+    <div id="mansion-container">
+        <div class="floating-elements">
+            <div class="floating-ghost" style="top: 10%; left: 5%;">👻</div>
+            <div class="floating-ghost" style="top: 20%; right: 10%; animation-delay: -2s;">🦇</div>
+            <div class="floating-ghost" style="bottom: 30%; left: 15%; animation-delay: -4s;">🕷️</div>
+            <div class="floating-ghost" style="top: 60%; right: 5%; animation-delay: -1s;">💀</div>
+        </div>
+        
+        <div class="mansion-header">
+            <div class="mansion-title">👻 Haunted AWS Cost Guard</div>
+            <div class="mansion-subtitle">Monitoring your spooky cloud expenses</div>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-room">
+                <div class="service-name">🖥️ EC2 Instances</div>
+                <div class="service-cost">$245.67</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-warning" style="width: 82%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 82% used<br>
+                    Trend: ↗️ Increasing<br>
+                    Region: us-east-1
+                </div>
+            </div>
+            
+            <div class="service-room">
+                <div class="service-name">🗄️ S3 Storage</div>
+                <div class="service-cost">$89.23</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-safe" style="width: 45%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 45% used<br>
+                    Trend: ➡️ Stable<br>
+                    Region: us-west-2
+                </div>
+            </div>
+            
+            <div class="service-room">
+                <div class="service-name">🗃️ RDS Database</div>
+                <div class="service-cost">$156.78</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-danger" style="width: 112%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 112% used<br>
+                    Trend: ⚠️ Over Budget<br>
+                    Region: eu-west-1
+                </div>
+            </div>
+            
+            <div class="service-room">
+                <div class="service-name">🌐 CloudFront</div>
+                <div class="service-cost">$34.12</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-safe" style="width: 28%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 28% used<br>
+                    Trend: ↘️ Decreasing<br>
+                    Region: Global
+                </div>
+            </div>
+            
+            <div class="service-room">
+                <div class="service-name">⚡ Lambda</div>
+                <div class="service-cost">$12.45</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-safe" style="width: 15%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 15% used<br>
+                    Trend: ➡️ Stable<br>
+                    Region: us-east-1
+                </div>
+            </div>
+            
+            <div class="service-room">
+                <div class="service-name">📊 CloudWatch</div>
+                <div class="service-cost">$67.89</div>
+                <div class="budget-bar">
+                    <div class="budget-fill budget-warning" style="width: 78%;"></div>
+                </div>
+                <div class="service-details">
+                    Budget: 78% used<br>
+                    Trend: ↗️ Increasing<br>
+                    Region: us-east-1
+                </div>
+            </div>
+        </div>
+        
+        <div class="mansion-footer">
+            🏚️ Total 6 services | 💰 Total Cost: $606.14 USD | 🕐 Last updated: <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+        
+        function log(message) {
+            const logEl = document.getElementById('log');
+            logEl.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function scrollToMansion() {
+            const mansion = document.getElementById('mansion-container');
+            mansion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            log('Scrolled to mansion container');
+        }
+
+        function resetMansion() {
+            // Reset any modifications
+            const mansion = document.getElementById('mansion-container');
+            mansion.classList.remove('pdf-export-ready');
+            log('Mansion reset to original state');
+        }
+
+        async function testEnhancedPDF() {
+            log('Starting enhanced PDF generation...');
+            
+            const btn = document.getElementById('enhancedBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const element = document.getElementById('mansion-container');
+                if (!element) {
+                    throw new Error('Mansion container not found');
+                }
+
+                // Scroll to top and ensure element is visible
+                window.scrollTo(0, 0);
+                element.scrollIntoView({ behavior: 'instant', block: 'start' });
+                log('Scrolled to mansion and positioned for capture');
+                
+                // Wait for scroll to complete
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Prepare element for capture
+                log('Preparing element for capture...');
+                const originalStyles = new Map();
+                
+                // Store original styles and apply capture-friendly styles
+                const allElements = element.querySelectorAll('*');
+                allElements.forEach((el) => {
+                    const htmlEl = el;
+                    originalStyles.set(htmlEl, htmlEl.style.cssText);
+                    
+                    // Optimize for capture
+                    htmlEl.style.animation = 'none';
+                    htmlEl.style.transition = 'none';
+                    htmlEl.style.transform = 'none';
+                    htmlEl.style.fontFamily = 'Arial, sans-serif';
+                    htmlEl.style.webkitFontSmoothing = 'antialiased';
+                    htmlEl.style.textRendering = 'optimizeLegibility';
+                });
+                
+                // Add capture-ready class
+                element.classList.add('pdf-export-ready');
+                
+                try {
+                    // Wait for animations to settle
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    log('Element prepared, starting canvas capture...');
+
+                    // Get element dimensions
+                    const rect = element.getBoundingClientRect();
+                    const elementWidth = Math.max(element.scrollWidth, element.offsetWidth, rect.width);
+                    const elementHeight = Math.max(element.scrollHeight, element.offsetHeight, rect.height);
+                    
+                    log(`Element dimensions: ${elementWidth}x${elementHeight}`);
+
+                    // Create canvas with proper dimensions
+                    const canvas = await html2canvas(element, {
+                        backgroundColor: '#1a1a2e',
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false,
+                        width: elementWidth,
+                        height: elementHeight,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight,
+                        scrollX: 0,
+                        scrollY: 0,
+                        foreignObjectRendering: false,
+                        imageTimeout: 15000,
+                        removeContainer: false,
+                        letterRendering: true,
+                        onclone: (clonedDoc, clonedElement) => {
+                            log('Processing cloned element...');
+                            // Ensure all text is properly rendered in clone
+                            const allTextElements = clonedElement.querySelectorAll('*');
+                            allTextElements.forEach((el) => {
+                                const htmlEl = el;
+                                if (htmlEl.style) {
+                                    htmlEl.style.fontFamily = 'Arial, sans-serif';
+                                    htmlEl.style.webkitFontSmoothing = 'antialiased';
+                                    htmlEl.style.textRendering = 'optimizeLegibility';
+                                }
+                            });
+                        }
+                    });
+
+                    log(`Canvas created: ${canvas.width}x${canvas.height}`);
+
+                    if (canvas.width === 0 || canvas.height === 0) {
+                        throw new Error('Canvas capture failed - invalid dimensions');
+                    }
+
+                    // Create PDF with proper orientation
+                    const isLandscape = canvas.width > canvas.height;
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: isLandscape ? 'landscape' : 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+
+                    // Add title
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(20);
+                    pdf.setTextColor(255, 107, 53);
+                    pdf.text('Haunted AWS Cost Guard Report', 20, 20);
+
+                    // Add timestamp
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(12);
+                    pdf.setTextColor(100, 100, 100);
+                    const timestamp = new Date().toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    pdf.text(`Generated: ${timestamp}`, 20, 30);
+
+                    // Calculate image dimensions to fit page perfectly
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    
+                    const maxWidth = pageWidth - 40;
+                    const maxHeight = pageHeight - 60;
+                    
+                    // Calculate aspect ratio preserving dimensions
+                    const aspectRatio = canvas.width / canvas.height;
+                    let imgWidth = maxWidth;
+                    let imgHeight = maxWidth / aspectRatio;
+                    
+                    if (imgHeight > maxHeight) {
+                        imgHeight = maxHeight;
+                        imgWidth = maxHeight * aspectRatio;
+                    }
+                    
+                    const x = (pageWidth - imgWidth) / 2;
+                    const y = 45;
+                    
+                    // Convert canvas to high-quality image
+                    const imgData = canvas.toDataURL('image/png', 1.0);
+                    
+                    log(`Adding image to PDF: ${imgWidth.toFixed(1)}x${imgHeight.toFixed(1)}mm at (${x.toFixed(1)}, ${y.toFixed(1)})`);
+                    
+                    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                    // Save PDF
+                    const filename = `enhanced-mansion-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                    pdf.save(filename);
+                    
+                    log('✅ Enhanced PDF generated successfully!');
+                    log(`   - Filename: ${filename}`);
+                    log(`   - Canvas size: ${canvas.width}x${canvas.height}`);
+                    log(`   - PDF size: ${imgWidth.toFixed(1)}x${imgHeight.toFixed(1)}mm`);
+                    
+                } finally {
+                    // Restore original styles
+                    element.classList.remove('pdf-export-ready');
+                    originalStyles.forEach((style, el) => {
+                        el.style.cssText = style;
+                    });
+                    log('Element styles restored');
+                }
+                
+            } catch (error) {
+                log('❌ Enhanced PDF generation failed: ' + error.message);
+                console.error('Enhanced PDF generation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Enhanced PDF';
+            }
+        }
+
+        // Auto-run basic test on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, enhanced PDF test ready...');
+                log('Click "Generate Enhanced PDF" to test DOM capture');
+                log('The mansion should be fully captured with all visual elements');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+/* PDF Export Optimization Styles */
+
+/* Ensure proper font rendering for PDF export with Korean support */
+.pdf-export-ready {
+  font-family: 'Arial', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.pdf-export-ready * {
+  font-family: 'Arial', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure text is visible in PDF */
+.pdf-export-ready .text-white,
+.pdf-export-ready .text-gray-100,
+.pdf-export-ready .text-gray-200,
+.pdf-export-ready .text-gray-300 {
+  color: #ffffff !important;
+}
+
+.pdf-export-ready .text-orange-400,
+.pdf-export-ready .text-orange-500 {
+  color: #fb923c !important;
+}
+
+.pdf-export-ready .text-purple-400,
+.pdf-export-ready .text-purple-500 {
+  color: #a855f7 !important;
+}
+
+/* Hide elements that shouldn't appear in PDF */
+.pdf-export-ready .export-panel,
+.pdf-export-ready .cost-detail-panel,
+.pdf-export-ready .budget-panel,
+.pdf-export-ready .mode-selection,
+.pdf-export-ready .floating-controls {
+  display: none !important;
+}
+
+/* Animation elements should be static in PDF */
+.pdf-export-ready * {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Ensure Konva canvas elements are visible and properly positioned */
+.pdf-export-ready canvas {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+  background: transparent !important;
+}
+
+/* Ensure Konva stage containers are visible */
+.pdf-export-ready .konvajs-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  position: relative !important;
+}
+
+/* Ensure all text is readable */
+.pdf-export-ready {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+/* Fix any potential z-index issues */
+.pdf-export-ready * {
+  position: relative !important;
+}
+
+/* Ensure Stage elements from Konva are captured */
+.pdf-export-ready .react-konva-stage {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Print-specific styles */
+@media print {
+  .pdf-export-ready {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  .pdf-export-ready * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}

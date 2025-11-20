@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Stage, Layer } from 'react-konva';
-import { Ghost, Skull, AlertTriangle, DollarSign, Activity, Home } from 'lucide-react';
+import { Ghost, Activity } from 'lucide-react';
 import { ServiceRoom } from './ServiceRoom';
 import { CostDetailPanel } from './CostDetailPanel';
 import { BudgetPanel } from './BudgetPanel';
 import { ExportButton } from './ExportButton';
-import { MansionSkeleton, HauntedSpinner } from './LoadingStates';
+import { MansionSkeleton } from './LoadingStates';
 import { useHauntedStore } from '../store/hauntedStore';
 import { shareService } from '../services/shareService';
 import { performanceMonitor, PerformanceMetrics, QualitySettings } from '../services/performanceMonitor';
@@ -424,7 +424,10 @@ export const HauntedMansion: React.FC = () => {
       </div>
 
       {/* Mansion Main Area */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0">
+      <div 
+        id="mansion-container"
+        className="relative z-10 flex-1 flex flex-col min-h-0"
+      >
         {/* Mansion Rooms */}
         <motion.div 
           className="flex-1 p-2 overflow-hidden"
@@ -433,7 +436,6 @@ export const HauntedMansion: React.FC = () => {
           transition={{ duration: 1, delay: 0.3 }}
         >
           <div 
-            id="mansion-container"
             className="bg-gradient-to-br from-black/50 via-purple-900/30 to-orange-900/20 backdrop-blur-sm rounded-2xl border-2 border-orange-500/40 p-3 shadow-2xl relative h-full overflow-auto"
             role="grid"
             aria-label="Service rooms in haunted mansion"

@@ -7,6 +7,7 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { useHauntedStore } from './store/hauntedStore';
 import './App.css';
+import './styles/pdf-export.css';
 
 interface AWSCredentials {
   accessKeyId: string;

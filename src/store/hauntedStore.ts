@@ -3,7 +3,7 @@ import { networkService } from '../services/networkService';
 import { cacheService } from '../services/cacheService';
 import { errorRecoveryService } from '../services/errorRecoveryService';
 
-interface ServiceCost {
+export interface ServiceCost {
   service: string;
   displayName: string;
   totalCost: number;
@@ -15,13 +15,13 @@ interface ServiceCost {
   trend: 'increasing' | 'decreasing' | 'stable';
 }
 
-interface AWSCredentials {
+export interface AWSCredentials {
   accessKeyId: string;
   secretAccessKey: string;
   region: string;
 }
 
-interface Budget {
+export interface Budget {
   id: string;
   accountId: string;
   service?: string;
@@ -33,7 +33,7 @@ interface Budget {
   updatedAt: Date;
 }
 
-interface BudgetUtilization {
+export interface BudgetUtilization {
   service: string;
   currentCost: number;
   budgetAmount: number;

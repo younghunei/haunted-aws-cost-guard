@@ -31,8 +31,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ isOpen, onClose }) => 
     services, 
     viewSettings, 
     budgets, 
-    demoMode,
-    generateShareableState 
+    demoMode
   } = useHauntedStore();
 
   const [activeTab, setActiveTab] = useState<'export' | 'share'>('export');
@@ -70,6 +69,33 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ isOpen, onClose }) => 
   const handleExport = async () => {
     if (isExporting) return;
     
+    console.log('🎃 Starting export...', exportOptions);
+    
+    // Enhanced element validation
+    const mansionElement = document.getElementById('mansion-container');
+    console.log('Mansion element validation:', {
+      found: !!mansionElement,
+      visible: mansionElement ? mansionElement.offsetWidth > 0 && mansionElement.offsetHeight > 0 : false,
+      dimensions: mansionElement ? { width: mansionElement.offsetWidth, height: mansionElement.offsetHeight } : null,
+      children: mansionElement ? mansionElement.children.length : 0,
+      services: services.length
+    });
+    
+    if (!mansionElement) {
+      showNotification('error', '🏚️ Haunted mansion not found! Please enter Demo Mode or AWS Mode first.');
+      return;
+    }
+
+    if (mansionElement.offsetWidth === 0 || mansionElement.offsetHeight === 0) {
+      showNotification('error', '👻 Mansion is not visible! Please make sure the mansion is fully loaded.');
+      return;
+    }
+
+    if (services.length === 0) {
+      showNotification('error', '🏚️ No services to export! Please load some data first.');
+      return;
+    }
+    
     setIsExporting(true);
     
     try {
@@ -79,17 +105,57 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ isOpen, onClose }) => 
 
       switch (exportOptions.format) {
         case 'pdf':
-          await exportService.exportToPDF(
-            'mansion-container',
-            filename,
-            { 
-              includeData: exportOptions.includeData,
-              snapshot: exportOptions.includeData ? snapshot : undefined
+          showNotification('success', '📄 Generating PDF report... Please wait.');
+          console.log('🔄 Starting PDF generation...');
+          
+          // Wait a moment for notification to show
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          try {
+            // Try the enhanced DOM capture method first
+            await exportService.exportToPDFEnhanced(
+              'mansion-container',
+              filename,
+              { 
+                includeData: exportOptions.includeData,
+                snapshot: exportOptions.includeData ? snapshot : undefined
+              }
+            );
+          } catch (enhancedError) {
+            console.warn('Enhanced PDF export failed, trying simple method:', enhancedError);
+            showNotification('success', '📄 Trying data-based PDF method...');
+            
+            try {
+              // Fallback to simple data-based method
+              await exportService.exportToPDFSimple(
+                'mansion-container',
+                filename,
+                { 
+                  includeData: exportOptions.includeData,
+                  snapshot: exportOptions.includeData ? snapshot : undefined
+                }
+              );
+            } catch (simpleError) {
+              console.warn('Simple PDF export failed, trying alternative visual method:', simpleError);
+              showNotification('success', '📄 Trying alternative visual method...');
+              
+              // Last resort: try the alternative method
+              await exportService.exportToPDFAlternative(
+                'mansion-container',
+                filename,
+                { 
+                  includeData: exportOptions.includeData,
+                  snapshot: exportOptions.includeData ? snapshot : undefined
+                }
+              );
             }
-          );
+          }
+          console.log('✅ PDF generation complete!');
           break;
         
         case 'png':
+          showNotification('success', '📸 Capturing mansion image...');
+          await new Promise(resolve => setTimeout(resolve, 300));
           await exportService.exportToPNG('mansion-container', filename);
           break;
         
@@ -102,10 +168,31 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ isOpen, onClose }) => 
           break;
       }
 
-      showNotification('success', `Successfully exported as ${exportOptions.format.toUpperCase()}`);
+      showNotification('success', `✅ ${exportOptions.format.toUpperCase()} export completed successfully! 👻`);
     } catch (error) {
-      console.error('Export failed:', error);
-      showNotification('error', 'Export failed. Please try again.');
+      console.error('❌ Export failed:', error);
+      console.error('Error details:', {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+        format: exportOptions.format,
+        elementId: 'mansion-container',
+        elementExists: !!document.getElementById('mansion-container'),
+        servicesCount: services.length
+      });
+      
+      const errorMessage = (error as Error).message || 'Unknown error occurred';
+      
+      if (errorMessage.includes('not found') || errorMessage.includes('validation failed')) {
+        showNotification('error', '🏚️ Mansion element not found! Please refresh the page and try again.');
+      } else if (errorMessage.includes('not visible') || errorMessage.includes('zero dimensions')) {
+        showNotification('error', '👻 Mansion not visible! Please make sure you are in Demo or AWS mode.');
+      } else if (errorMessage.includes('canvas') || errorMessage.includes('capture')) {
+        showNotification('error', '📸 Failed to capture mansion. Try scrolling to top and ensuring mansion is fully visible.');
+      } else if (errorMessage.includes('PDF')) {
+        showNotification('error', '📄 PDF generation failed. Please try PNG format or refresh the page.');
+      } else {
+        showNotification('error', `Export failed: ${errorMessage.substring(0, 100)}...`);
+      }
     } finally {
       setIsExporting(false);
     }
@@ -363,7 +450,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ isOpen, onClose }) => 
                       {isExporting ? (
                         <>
                           <div className="animate-spin mr-2">👻</div>
-                          Exporting...
+                          {exportOptions.format === 'pdf' ? 'Generating PDF...' : 'Exporting...'}
                         </>
                       ) : (
                         <>

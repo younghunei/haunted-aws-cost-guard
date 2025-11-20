@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Rect, Group, Text, Circle } from 'react-konva';
-import { motion } from 'framer-motion';
+
 import Konva from 'konva';
 import { performanceMonitor, QualitySettings } from '../services/performanceMonitor';
 import { accessibilityService } from '../services/accessibilityService';
@@ -39,12 +39,7 @@ export const ServiceRoom: React.FC<ServiceRoomProps> = ({
     return unsubscribe;
   }, []);
 
-  // 텍스트 길이에 따른 처리 함수
-  const formatDisplayName = (name: string) => {
-    if (name.length <= 20) return name;
-    if (name.length <= 35) return name;
-    return name.substring(0, 32) + '...';
-  };
+
 
   // 여러 줄 텍스트 처리
   const getDisplayNameLines = (name: string) => {
@@ -179,15 +174,7 @@ export const ServiceRoom: React.FC<ServiceRoomProps> = ({
     });
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    handleMouseEnter();
-  };
 
-  const handleBlur = () => {
-    setIsFocused(false);
-    handleMouseLeave();
-  };
 
   const handleKeyDown = (e: any) => {
     if (e.evt.key === 'Enter' || e.evt.key === ' ') {

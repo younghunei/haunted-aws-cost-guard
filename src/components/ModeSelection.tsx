@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Cloud, Database, Key, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
+import { Cloud, Database, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
 
 interface AWSCredentials {
   accessKeyId: string;

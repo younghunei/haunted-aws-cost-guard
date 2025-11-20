@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Export Debug Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        #mansion-container {
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .service-room {
+            background: rgba(255, 107, 53, 0.2);
+            border: 2px solid #fb923c;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            width: 200px;
+            text-align: center;
+        }
+        
+        .cost-display {
+            color: #fb923c;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        
+        .debug-info {
+            background: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: #fb923c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #e8832e;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <h1>🎃 PDF Export Debug Test</h1>
+        <p>This page tests the PDF export functionality with a simplified mansion layout.</p>
+        
+        <div>
+            <button onclick="testElementExists()">1. Test Element Exists</button>
+            <button onclick="testCanvasCapture()">2. Test Canvas Capture</button>
+            <button onclick="testPDFGeneration()" id="pdfBtn">3. Generate PDF</button>
+            <button onclick="testSimplifiedPDF()" id="simplePdfBtn">4. Generate Simplified PDF</button>
+        </div>
+        
+        <div id="log" class="log">Ready for testing...\n</div>
+    </div>
+
+    <div id="mansion-container">
+        <h1>👻 Haunted AWS Cost Guard</h1>
+        <p>Debug Test Version</p>
+        
+        <div class="service-room">
+            <h3>EC2 Service</h3>
+            <div class="cost-display">$123.45</div>
+            <p>Budget: 75% used</p>
+        </div>
+        
+        <div class="service-room">
+            <h3>S3 Storage</h3>
+            <div class="cost-display">$67.89</div>
+            <p>Budget: 45% used</p>
+        </div>
+        
+        <div class="service-room">
+            <h3>RDS Database</h3>
+            <div class="cost-display">$234.56</div>
+            <p>Budget: 90% used</p>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <p>🏚️ Total 3 rooms | 🕐 Last updated: <span id="timestamp"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+        
+        function log(message) {
+            const logEl = document.getElementById('log');
+            logEl.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function testElementExists() {
+            log('Testing element existence...');
+            
+            const element = document.getElementById('mansion-container');
+            if (!element) {
+                log('❌ Element not found!');
+                return false;
+            }
+            
+            log('✅ Element found');
+            log(`   - Width: ${element.offsetWidth}px`);
+            log(`   - Height: ${element.offsetHeight}px`);
+            log(`   - Children: ${element.children.length}`);
+            log(`   - Visible: ${element.offsetWidth > 0 && element.offsetHeight > 0}`);
+            
+            return true;
+        }
+
+        async function testCanvasCapture() {
+            log('Testing canvas capture...');
+            
+            if (!testElementExists()) return;
+            
+            const element = document.getElementById('mansion-container');
+            
+            try {
+                log('Creating canvas...');
+                const canvas = await html2canvas(element, {
+                    backgroundColor: '#1a1a2e',
+                    scale: 1,
+                    useCORS: true,
+                    allowTaint: false,
+                    logging: false,
+                    width: element.offsetWidth,
+                    height: element.offsetHeight,
+                    foreignObjectRendering: false,
+                    imageTimeout: 15000
+                });
+                
+                log('✅ Canvas created successfully');
+                log(`   - Canvas width: ${canvas.width}px`);
+                log(`   - Canvas height: ${canvas.height}px`);
+                log(`   - Has data: ${canvas.width > 0 && canvas.height > 0}`);
+                
+                // Show preview
+                const dataUrl = canvas.toDataURL('image/png');
+                log(`   - Data URL length: ${dataUrl.length} characters`);
+                
+                return canvas;
+            } catch (error) {
+                log('❌ Canvas capture failed: ' + error.message);
+                return null;
+            }
+        }
+
+        async function testPDFGeneration() {
+            log('Testing PDF generation...');
+            
+            const btn = document.getElementById('pdfBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                const canvas = await testCanvasCapture();
+                if (!canvas) {
+                    throw new Error('Canvas capture failed');
+                }
+                
+                log('Creating PDF...');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Add title
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(20);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('👻 Haunted AWS Cost Guard Report (Debug)', 20, 20);
+
+                // Add timestamp
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                const timestamp = new Date().toLocaleString();
+                pdf.text(`Generated: ${timestamp}`, 20, 30);
+
+                // Add image
+                const imgData = canvas.toDataURL('image/png', 0.95);
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                
+                const maxWidth = pageWidth - 40;
+                const maxHeight = pageHeight - 80;
+                
+                let imgWidth = maxWidth;
+                let imgHeight = (canvas.height * maxWidth) / canvas.width;
+                
+                if (imgHeight > maxHeight) {
+                    imgHeight = maxHeight;
+                    imgWidth = (canvas.width * maxHeight) / canvas.height;
+                }
+                
+                const x = (pageWidth - imgWidth) / 2;
+                const y = 40;
+                
+                log(`Adding image to PDF: ${imgWidth.toFixed(1)}x${imgHeight.toFixed(1)}mm at (${x.toFixed(1)}, ${y.toFixed(1)})`);
+                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                // Save PDF
+                const filename = `haunted-mansion-debug-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                pdf.save(filename);
+                
+                log('✅ PDF generated successfully!');
+                log(`   - Filename: ${filename}`);
+                
+            } catch (error) {
+                log('❌ PDF generation failed: ' + error.message);
+                console.error('PDF generation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '3. Generate PDF';
+            }
+        }
+
+        async function testSimplifiedPDF() {
+            log('Testing simplified PDF generation...');
+            
+            const btn = document.getElementById('simplePdfBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                // Create a simple, guaranteed-to-work element
+                const simpleElement = document.createElement('div');
+                simpleElement.id = 'simple-test';
+                simpleElement.style.cssText = `
+                    width: 600px;
+                    height: 400px;
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    padding: 20px;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    position: absolute;
+                    top: -5000px;
+                    left: -5000px;
+                `;
+                
+                simpleElement.innerHTML = `
+                    <h1 style="color: #fb923c; text-align: center;">👻 Haunted AWS Cost Guard</h1>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+                        <div style="background: rgba(255, 107, 53, 0.2); border: 2px solid #fb923c; border-radius: 8px; padding: 15px; text-align: center;">
+                            <h3>EC2 Service</h3>
+                            <div style="color: #fb923c; font-weight: bold; font-size: 18px;">$123.45</div>
+                            <p>Budget: 75% used</p>
+                        </div>
+                        <div style="background: rgba(255, 107, 53, 0.2); border: 2px solid #fb923c; border-radius: 8px; padding: 15px; text-align: center;">
+                            <h3>S3 Storage</h3>
+                            <div style="color: #fb923c; font-weight: bold; font-size: 18px;">$67.89</div>
+                            <p>Budget: 45% used</p>
+                        </div>
+                    </div>
+                    <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; text-align: center; font-size: 12px;">
+                        Generated: ${new Date().toLocaleString()}
+                    </div>
+                `;
+                
+                document.body.appendChild(simpleElement);
+                
+                // Wait for element to render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                log('Creating canvas from simplified element...');
+                const canvas = await html2canvas(simpleElement, {
+                    backgroundColor: '#1a1a2e',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    width: 600,
+                    height: 400
+                });
+                
+                log('✅ Simplified canvas created successfully');
+                log(`   - Canvas width: ${canvas.width}px`);
+                log(`   - Canvas height: ${canvas.height}px`);
+                
+                // Create PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Add title
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(20);
+                pdf.setTextColor(255, 107, 53);
+                pdf.text('👻 Haunted AWS Cost Guard Report (Simplified)', 20, 20);
+
+                // Add timestamp
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                const timestamp = new Date().toLocaleString();
+                pdf.text(`Generated: ${timestamp}`, 20, 30);
+
+                // Add image
+                const imgData = canvas.toDataURL('image/png');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                
+                const maxWidth = pageWidth - 40;
+                const maxHeight = pageHeight - 80;
+                
+                let imgWidth = maxWidth;
+                let imgHeight = (canvas.height * maxWidth) / canvas.width;
+                
+                if (imgHeight > maxHeight) {
+                    imgHeight = maxHeight;
+                    imgWidth = (canvas.width * maxHeight) / canvas.height;
+                }
+                
+                const x = (pageWidth - imgWidth) / 2;
+                const y = 40;
+                
+                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                // Save PDF
+                const filename = `haunted-mansion-simplified-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                pdf.save(filename);
+                
+                log('✅ Simplified PDF generated successfully!');
+                log(`   - Filename: ${filename}`);
+                
+                // Clean up
+                document.body.removeChild(simpleElement);
+                
+            } catch (error) {
+                log('❌ Simplified PDF generation failed: ' + error.message);
+                console.error('Simplified PDF generation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '4. Generate Simplified PDF';
+            }
+        }
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, running basic tests...');
+                testElementExists();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
