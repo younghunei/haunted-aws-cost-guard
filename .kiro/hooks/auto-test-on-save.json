@@ -1,0 +1,19 @@
+{
+  "name": "🧪 Auto Test Haunted Components",
+  "description": "Automatically runs related tests when files are saved",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/**/*.{ts,tsx}", "backend/**/*.ts"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A file has just been saved! Please find and run the related tests. If tests fail, analyze the issues and suggest fixes. Report the results with spooky Halloween-themed messages! 🎃👻",
+      "context": {
+        "include_changed_files": true,
+        "include_related_tests": true
+      }
+    }
+  ],
+  "enabled": true
+}

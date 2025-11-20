@@ -1,0 +1,19 @@
+{
+  "name": "🔐 AWS Security Spell Check",
+  "description": "Performs security checks when AWS-related files are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["**/aws*.ts", "**/services/*.ts"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "An AWS-related file has been modified! Please perform the following security checks:\n\n1. Check for hardcoded credentials\n2. Verify proper error handling\n3. Review IAM permission-related comments or documentation\n4. Assess API call optimization\n5. Verify correct region settings\n\nIf issues are found, provide solutions like breaking a witch's curse! 🧙‍♀️⚡🔒",
+      "context": {
+        "include_changed_files": true,
+        "include_related_files": true
+      }
+    }
+  ],
+  "enabled": true
+}

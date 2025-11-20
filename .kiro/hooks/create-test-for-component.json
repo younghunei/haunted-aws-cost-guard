@@ -1,0 +1,19 @@
+{
+  "name": "👻 Summon Test Spirits",
+  "description": "Automatically creates test files when new React components are created",
+  "trigger": {
+    "type": "file_create",
+    "patterns": ["src/components/*.tsx"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A new React component has been created! Please generate a comprehensive test file for this component. It should include:\n\n1. Basic rendering tests\n2. Props tests\n3. User interaction tests\n4. Accessibility tests\n5. Halloween theme element tests\n\nUse fun Halloween-themed test descriptions! 🎃👻🧪",
+      "context": {
+        "include_changed_files": true,
+        "include_project_structure": true
+      }
+    }
+  ],
+  "enabled": true
+}

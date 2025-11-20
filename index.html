@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/ghost.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎃 Haunted AWS Cost Guard 👻</title>
+    <meta
+      name="description"
+      content="🏚️ Innovative dashboard for monitoring AWS costs with a spooky Halloween mansion UI 🕷️"
+    />
+
+    <!-- Font Loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Halloween Loading Screen Styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #000000 0%,
+          #1a0033 25%,
+          #330066 50%,
+          #4d0099 75%,
+          #000000 100%
+        );
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+        overflow: hidden;
+      }
+
+      #loading-screen::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(255, 107, 53, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(139, 92, 246, 0.1) 0%,
+            transparent 50%
+          );
+        animation: spooky-bg 10s ease-in-out infinite;
+      }
+
+      .loading-ghost {
+        font-size: 5rem;
+        animation: spooky-float 3s ease-in-out infinite;
+        filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.5));
+        z-index: 1;
+      }
+
+      .loading-text {
+        color: #ff6b35;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        animation: spooky-pulse 2s ease-in-out infinite;
+        text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        z-index: 1;
+      }
+
+      @keyframes spooky-float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+          filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.5));
+        }
+        25% {
+          transform: translateY(-15px) rotate(5deg);
+          filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.7));
+        }
+        50% {
+          transform: translateY(-25px) rotate(0deg);
+          filter: drop-shadow(0 0 40px rgba(255, 107, 53, 0.9));
+        }
+        75% {
+          transform: translateY(-15px) rotate(-5deg);
+          filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.7));
+        }
+      }
+
+      @keyframes spooky-pulse {
+        0%,
+        100% {
+          opacity: 0.7;
+          text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+        50% {
+          opacity: 1;
+          text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+        }
+      }
+
+      @keyframes spooky-bg {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Halloween Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-ghost">🎃</div>
+      <div class="loading-text">🏚️ Preparing the haunted mansion... 👻</div>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="module" src="/src/main.tsx"></script>
+
+    <script>
+      // Remove Loading Screen
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const loadingScreen = document.getElementById("loading-screen");
+          if (loadingScreen) {
+            loadingScreen.style.opacity = "0";
+            setTimeout(() => {
+              loadingScreen.remove();
+            }, 500);
+          }
+        }, 1500);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,168 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom Gradients */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Spooky Glow Effects */
+.haunted-glow {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.danger-glow {
+  box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.7);
+}
+
+/* 할로윈 애니메이션 키프레임 (Halloween Animation Keyframes) */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes spooky-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(255, 107, 53, 0.6);
+    text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+  75% { opacity: 0.9; }
+}
+
+@keyframes haunted-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+@keyframes creepy-rotate {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes ghost-float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-15px) translateX(5px); }
+  50% { transform: translateY(-10px) translateX(-5px); }
+  75% { transform: translateY(-20px) translateX(3px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pulse-glow-animation {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.shake-animation {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+.spooky-glow-animation {
+  animation: spooky-glow 3s ease-in-out infinite;
+}
+
+.flicker-animation {
+  animation: flicker 2s ease-in-out infinite;
+}
+
+.haunted-bounce-animation {
+  animation: haunted-bounce 2s ease-in-out infinite;
+}
+
+.creepy-rotate-animation {
+  animation: creepy-rotate 4s ease-in-out infinite;
+}
+
+.ghost-float-animation {
+  animation: ghost-float 5s ease-in-out infinite;
+}
+
+/* 반응형 텍스트 */
+@media (max-width: 768px) {
+  .mansion-title {
+    font-size: 2rem;
+  }
+  
+  .room-card {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* 할로윈 다크 테마 최적화 (Halloween Dark Theme Optimization) */
+body {
+  background: linear-gradient(135deg, #000000 0%, #1a0033 25%, #330066 50%, #4d0099 75%, #000000 100%);
+  background-attachment: fixed;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: visible;
+}
+
+/* 할로윈 배경 효과 (Halloween Background Effects) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 165, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

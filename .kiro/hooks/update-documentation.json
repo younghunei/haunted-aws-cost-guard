@@ -1,0 +1,19 @@
+{
+  "name": "📚 Grimoire Documentation Update",
+  "description": "Automatically updates documentation when major features change",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/components/*.tsx", "backend/src/services/*.ts", "src/types/*.ts"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "Time to update the grimoire (documentation)! 📜✨\n\nAnalyze the recently modified files and check if the following documents need updates:\n\n1. README.md - New features or usage changes\n2. API documentation - Backend service changes\n3. Component documentation - New props or features\n4. Installation/setup guide - Dependency changes\n\nIf needed, update the documentation with fun Halloween-themed descriptions! 🎃📖👻",
+      "context": {
+        "include_changed_files": true,
+        "include_documentation": true
+      }
+    }
+  ],
+  "enabled": false
+}
