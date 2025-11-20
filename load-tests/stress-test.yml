@@ -1,0 +1,77 @@
+# 💀 Haunted AWS Cost Guard - Stress Testing
+# Pushing our supernatural API to its breaking point
+
+config:
+  target: 'http://localhost:3001'
+  phases:
+    # 🔥 Extreme load - Test system limits
+    - duration: 300  # 5 minutes
+      arrivalRate: 100
+      name: "Supernatural Apocalypse"
+    
+    # ⚡ Spike test - Sudden burst of activity
+    - duration: 60
+      arrivalRate: 200
+      name: "Lightning Strike Load"
+    
+    # 🌪️ Sustained high load
+    - duration: 600  # 10 minutes
+      arrivalRate: 75
+      name: "Sustained Haunting"
+
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      User-Agent: 'Haunted-Stress-Tester/1.0'
+
+  # Relaxed thresholds for stress testing
+  ensure:
+    # Allow higher response times under stress
+    - p95: 10000  # 10 seconds
+    - p99: 20000  # 20 seconds
+    # Allow higher error rate during stress
+    - maxErrorRate: 5
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+scenarios:
+  # 🎭 Heavy demo mode usage
+  - name: "Intensive Demo Usage"
+    weight: 70
+    flow:
+      - loop:
+          - get:
+              url: "/api/cost/demo"
+              name: "Demo Data Request"
+          - get:
+              url: "/api/budget/demo"
+              name: "Budget Request"
+          - think: 0.1  # Minimal think time for stress
+        count: 5
+
+  # 🔐 Credential validation spam
+  - name: "Credential Validation Stress"
+    weight: 20
+    flow:
+      - loop:
+          - post:
+              url: "/api/cost/validate-credentials"
+              name: "Credential Validation"
+              json:
+                accessKeyId: "STRESS_TEST_{{ $randomString() }}"
+                secretAccessKey: "STRESS_SECRET_{{ $randomString() }}"
+                region: "us-east-1"
+        count: 3
+
+  # 📊 Export stress testing
+  - name: "Export Stress Test"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/export/json"
+          name: "JSON Export Stress"
+          json:
+            format: "json"
+            includeVisuals: false

@@ -2,9 +2,51 @@ import { Router, Request, Response } from 'express';
 import { budgetService } from '../services/budgetService';
 import { Budget, ApiResponse } from '../types';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Budget:
+ *       $ref: '#/components/schemas/Budget'
+ *     BudgetAlert:
+ *       $ref: '#/components/schemas/BudgetAlert'
+ */
+
 const router = Router();
 
-// Get all budgets for an account
+/**
+ * @swagger
+ * /budget/{accountId}:
+ *   get:
+ *     summary: 💰 Get all budgets for account
+ *     description: Retrieve all budget configurations for a specific AWS account or demo mode
+ *     tags: [💰 Budget Management]
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: AWS account ID or 'demo' for demo mode
+ *         example: "demo"
+ *     responses:
+ *       200:
+ *         description: Budgets retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Budget'
+ *       500:
+ *         description: Server error
+ */
 router.get('/:accountId', (req: Request, res: Response) => {
   try {
     const { accountId } = req.params;

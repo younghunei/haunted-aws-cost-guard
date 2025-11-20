@@ -1,0 +1,189 @@
+# 🎃 Haunted AWS Cost Guard - Load Testing Configuration
+# Testing our supernatural API under spooky concurrent load scenarios
+
+config:
+  target: 'http://localhost:3001'
+  phases:
+    # 👻 Warm-up phase - Gentle haunting
+    - duration: 30
+      arrivalRate: 2
+      name: "Gentle Spirits Awakening"
+    
+    # 🦇 Ramp-up phase - Increasing supernatural activity
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 15
+      name: "Rising Supernatural Activity"
+    
+    # 💀 Peak load phase - Full haunted mansion chaos
+    - duration: 120
+      arrivalRate: 20
+      name: "Peak Haunting Hours"
+    
+    # 🕷️ Stress test phase - Maximum supernatural overload
+    - duration: 60
+      arrivalRate: 30
+      rampTo: 50
+      name: "Supernatural Overload"
+    
+    # 🔥 Cool-down phase - Spirits settling down
+    - duration: 30
+      arrivalRate: 5
+      name: "Spirits Settling"
+
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      User-Agent: 'Haunted-Load-Tester/1.0'
+
+  # Performance thresholds
+  ensure:
+    # 95% of requests should complete within 2 seconds
+    - p95: 2000
+    # 99% of requests should complete within 5 seconds  
+    - p99: 5000
+    # Error rate should be less than 1%
+    - maxErrorRate: 1
+
+  # Metrics collection
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+scenarios:
+  # 🎭 Demo Mode User Journey
+  - name: "Demo Mode Haunting Experience"
+    weight: 60
+    flow:
+      # Health check
+      - get:
+          url: "/health"
+          name: "Health Check"
+          expect:
+            - statusCode: 200
+      
+      # Get demo data
+      - get:
+          url: "/api/cost/demo"
+          name: "Get Demo Data"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.services"
+          capture:
+            - json: "$.data"
+              as: "costData"
+      
+      # Get demo scenarios
+      - get:
+          url: "/api/cost/demo/scenarios"
+          name: "Get Demo Scenarios"
+          expect:
+            - statusCode: 200
+      
+      # Get demo budgets
+      - get:
+          url: "/api/budget/demo"
+          name: "Get Demo Budgets"
+          expect:
+            - statusCode: 200
+      
+      # Think time - user reviewing data
+      - think: 2
+      
+      # Update a budget
+      - put:
+          url: "/api/budget/demo/EC2"
+          name: "Update EC2 Budget"
+          json:
+            amount: 1000
+            currency: "USD"
+            period: "monthly"
+            alertThresholds: [50, 80, 100]
+          expect:
+            - statusCode: 200
+
+  # 🔐 AWS Credential Validation Journey
+  - name: "AWS Credential Validation"
+    weight: 20
+    flow:
+      # Validate invalid credentials (expected to fail)
+      - post:
+          url: "/api/cost/validate-credentials"
+          name: "Validate Invalid Credentials"
+          json:
+            accessKeyId: "INVALID_KEY_{{ $randomString() }}"
+            secretAccessKey: "INVALID_SECRET_{{ $randomString() }}"
+            region: "us-east-1"
+          expect:
+            - statusCode: 401
+      
+      # Think time
+      - think: 1
+
+  # 📊 CSV Upload Journey
+  - name: "CSV Upload Workflow"
+    weight: 15
+    flow:
+      # Validate CSV format (simulate invalid file)
+      - post:
+          url: "/api/cost/validate-csv"
+          name: "Validate Invalid CSV"
+          formData:
+            csvFile: "invalid,csv,data\ntest,data,here"
+          expect:
+            - statusCode: 400
+      
+      # Think time
+      - think: 1
+
+  # 📈 Export Functionality
+  - name: "Export Operations"
+    weight: 5
+    flow:
+      # Get demo data first
+      - get:
+          url: "/api/cost/demo"
+          name: "Get Data for Export"
+          expect:
+            - statusCode: 200
+      
+      # Export as JSON
+      - post:
+          url: "/api/export/json"
+          name: "Export JSON"
+          json:
+            format: "json"
+            includeVisuals: false
+            dateRange:
+              start: "2024-01-01"
+              end: "2024-01-31"
+          expect:
+            - statusCode: 200
+      
+      # Think time
+      - think: 1
+      
+      # Export as PDF
+      - post:
+          url: "/api/export/pdf"
+          name: "Export PDF"
+          json:
+            format: "pdf"
+            includeVisuals: true
+          expect:
+            - statusCode: 200
+
+# 🎯 Custom functions for dynamic data
+functions:
+  generateRandomCost: |
+    function(context, events, done) {
+      context.vars.randomCost = Math.floor(Math.random() * 1000) + 100;
+      return done();
+    }
+  
+  generateRandomService: |
+    function(context, events, done) {
+      const services = ['EC2', 'S3', 'RDS', 'Lambda', 'CloudWatch'];
+      context.vars.randomService = services[Math.floor(Math.random() * services.length)];
+      return done();
+    }

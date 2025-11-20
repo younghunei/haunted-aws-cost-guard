@@ -6,6 +6,7 @@ import costRoutes from './routes/costRoutes';
 import budgetRoutes from './routes/budgetRoutes';
 import exportRoutes from './routes/exportRoutes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { setupSwagger } from './swagger';
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Swagger API Documentation
+setupSwagger(app);
+
 // Routes
 app.use('/api/cost', costRoutes);
 app.use('/api/budget', budgetRoutes);
@@ -48,7 +52,8 @@ app.get('/', (req, res) => {
         health: '/health',
         cost: '/api/cost',
         budget: '/api/budget',
-        export: '/api/export'
+        export: '/api/export',
+        docs: '/api-docs'
       }
     },
     message: '🏚️ Welcome to the Haunted AWS Cost Guard API'

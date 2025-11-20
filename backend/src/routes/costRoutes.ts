@@ -7,6 +7,20 @@ import { budgetService } from '../services/budgetService';
 import { ModeSelectionRequest, ApiResponse, AWSCredentials } from '../types';
 import Joi from 'joi';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CostData:
+ *       $ref: '#/components/schemas/CostData'
+ *     ServiceCost:
+ *       $ref: '#/components/schemas/ServiceCost'
+ *     AWSCredentials:
+ *       $ref: '#/components/schemas/AWSCredentials'
+ *     Error:
+ *       $ref: '#/components/schemas/Error'
+ */
+
 const router = Router();
 const demoDataService = new DemoDataService();
 const awsService = new AWSService();
@@ -72,7 +86,36 @@ const credentialsSchema = Joi.object({
   region: Joi.string().optional().default('us-east-1')
 });
 
-// GET /api/cost/demo - Get demo cost data
+/**
+ * @swagger
+ * /cost/demo:
+ *   get:
+ *     summary: 👻 Get spooky demo cost data
+ *     description: Retrieve sample AWS cost data for exploring the haunted mansion without real AWS credentials
+ *     tags: [🎭 Demo Mode]
+ *     responses:
+ *       200:
+ *         description: Demo data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/CostData'
+ *                 message:
+ *                   type: string
+ *                   example: "Demo data retrieved successfully"
+ *       500:
+ *         description: Failed to retrieve demo data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/demo', (req: Request, res: Response) => {
   try {
     // Initialize demo budgets if they don't exist
@@ -116,7 +159,46 @@ router.get('/demo/scenarios', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/cost/validate-credentials - Validate AWS credentials
+/**
+ * @swagger
+ * /cost/validate-credentials:
+ *   post:
+ *     summary: 🔐 Validate AWS credentials
+ *     description: Check if provided AWS credentials are valid and have necessary permissions
+ *     tags: [🔐 Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AWSCredentials'
+ *     responses:
+ *       200:
+ *         description: Credentials validated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     valid:
+ *                       type: boolean
+ *                       example: true
+ *                 message:
+ *                   type: string
+ *                   example: "AWS credentials validated successfully"
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/validate-credentials', async (req: Request, res: Response) => {
   try {
     const { error, value } = credentialsSchema.validate(req.body);
@@ -280,7 +362,45 @@ router.get('/aws/cache-stats', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/cost/upload-csv - Upload Cost Explorer CSV export
+/**
+ * @swagger
+ * /cost/upload-csv:
+ *   post:
+ *     summary: 📊 Upload AWS Cost Explorer CSV
+ *     description: Upload and process a CSV export from AWS Cost Explorer to populate the haunted mansion
+ *     tags: [👻 Cost Data]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               csvFile:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file exported from AWS Cost Explorer
+ *     responses:
+ *       200:
+ *         description: CSV processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/CostData'
+ *                 message:
+ *                   type: string
+ *                   example: "CSV processed successfully. 150 rows processed."
+ *       400:
+ *         description: Invalid CSV file or format
+ *       500:
+ *         description: Processing error
+ */
 router.post('/upload-csv', upload.single('csvFile'), handleMulterError, async (req: Request, res: Response) => {
   try {
     if (!req.file) {

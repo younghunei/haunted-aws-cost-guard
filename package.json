@@ -8,7 +8,13 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:load": "node load-tests/run-load-tests.js",
+    "test:all": "npm run test:run && npm run test:e2e"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.8.4",
@@ -25,6 +31,7 @@
     "zustand": "^4.4.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.5.1",
@@ -32,6 +39,7 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.1.1",
+    "artillery": "^2.0.27",
     "autoprefixer": "^10.4.16",
     "jsdom": "^23.0.1",
     "postcss": "^8.4.31",
