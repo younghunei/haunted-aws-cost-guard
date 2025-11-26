@@ -15,6 +15,40 @@ export interface ServiceCost {
   trend: 'increasing' | 'decreasing' | 'stable';
 }
 
+// 🎃 새로운 차트 데이터 타입들 (New Chart Data Types)
+export interface MonthlyCost {
+  month: string;
+  year: number;
+  cost: number;
+  currency: string;
+  services: { [serviceName: string]: number };
+}
+
+export interface CostForecast {
+  currentMonthCost: number;
+  projectedMonthEndCost: number;
+  confidence: number; // 0-1 범위의 예측 신뢰도
+  trend: 'increasing' | 'decreasing' | 'stable';
+  dailyProjections: Array<{
+    date: string;
+    projectedCost: number;
+    actualCost?: number;
+  }>;
+}
+
+export interface RegionalCostBreakdown {
+  region: string;
+  displayName: string;
+  totalCost: number;
+  percentage: number;
+  services: Array<{
+    service: string;
+    cost: number;
+    percentage: number;
+  }>;
+  trend: 'increasing' | 'decreasing' | 'stable';
+}
+
 export interface AWSCredentials {
   accessKeyId: string;
   secretAccessKey: string;
@@ -59,6 +93,12 @@ interface HauntedStore {
   awsCredentials: AWSCredentials | null;
   isInitialized: boolean;
   lastUpdated: Date;
+  
+  // 🎃 새로운 차트 데이터 상태 (New Chart Data State)
+  monthlyCosts: MonthlyCost[];
+  costForecast: CostForecast | null;
+  regionalBreakdown: RegionalCostBreakdown[];
+  showAdvancedCharts: boolean;
   
   // Error handling
   error: Error | string | null;
@@ -113,7 +153,102 @@ interface HauntedStore {
   setShareData: (data: any) => void;
   loadFromShareData: (shareData: any) => void;
   generateShareableState: () => any;
+  
+  // 🎃 새로운 차트 데이터 액션들 (New Chart Data Actions)
+  setMonthlyCosts: (costs: MonthlyCost[]) => void;
+  setCostForecast: (forecast: CostForecast) => void;
+  setRegionalBreakdown: (breakdown: RegionalCostBreakdown[]) => void;
+  setShowAdvancedCharts: (show: boolean) => void;
+  loadAdvancedCostData: () => Promise<void>;
 }
+
+// 🎃 데모 월별 비용 데이터 생성 (Generate Demo Monthly Cost Data - 12 months)
+const generateDemoMonthlyCosts = (): MonthlyCost[] => {
+  const currentYear = new Date().getFullYear();
+  const months: MonthlyCost[] = [];
+  
+  // 1월부터 12월까지 전체 연도 데이터 생성
+  for (let month = 1; month <= 12; month++) {
+    const monthString = `${currentYear}-${month.toString().padStart(2, '0')}`;
+    
+    // 계절적 변동과 랜덤 요소를 포함한 비용 계산
+    const seasonalMultiplier = 0.8 + (Math.sin((month - 1) * Math.PI / 6) * 0.3); // 계절적 변동
+    const randomVariation = 0.85 + (Math.random() * 0.3); // ±15% 랜덤 변동
+    const baseCost = 8500 + (month * 400) + (seasonalMultiplier * 3000); // 기본 비용 + 월별 증가 + 계절 변동
+    const finalCost = baseCost * randomVariation;
+    
+    months.push({
+      month: monthString,
+      year: currentYear,
+      cost: Math.round(finalCost * 100) / 100,
+      currency: 'USD',
+      services: {
+        'EC2': Math.round(finalCost * 0.30 * 100) / 100,
+        'S3': Math.round(finalCost * 0.12 * 100) / 100,
+        'RDS': Math.round(finalCost * 0.22 * 100) / 100,
+        'Lambda': Math.round(finalCost * 0.06 * 100) / 100,
+        'CloudFront': Math.round(finalCost * 0.20 * 100) / 100,
+        'DynamoDB': Math.round(finalCost * 0.10 * 100) / 100
+      }
+    });
+  }
+  
+  return months;
+};
+
+// 🎃 데모 비용 예측 데이터 생성 (Generate Demo Cost Forecast Data)
+const generateDemoCostForecast = (): CostForecast => {
+  const currentCost = 7280.45;
+  const projectedCost = 8733.34;
+  const daysInMonth = 30;
+  const currentDay = 18;
+  
+  const dailyProjections = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = `2024-11-${day.toString().padStart(2, '0')}`;
+    const projectedDailyCost = (projectedCost / daysInMonth) * day;
+    const actualCost = day <= currentDay ? (currentCost / currentDay) * day : undefined;
+    
+    dailyProjections.push({
+      date,
+      projectedCost: Math.round(projectedDailyCost * 100) / 100,
+      actualCost: actualCost ? Math.round(actualCost * 100) / 100 : undefined
+    });
+  }
+  
+  return {
+    currentMonthCost: currentCost,
+    projectedMonthEndCost: projectedCost,
+    confidence: 0.87,
+    trend: 'increasing',
+    dailyProjections
+  };
+};
+
+// 🎃 데모 리전별 비용 분석 데이터 생성 (Generate Demo Regional Cost Breakdown Data)
+const generateDemoRegionalBreakdown = (): RegionalCostBreakdown[] => {
+  const regions = [
+    { region: 'us-east-1', displayName: 'US East (N. Virginia)', cost: 5867.01, percentage: 80.47 },
+    { region: 'ap-northeast-2', displayName: 'Asia Pacific (Seoul)', cost: 707.65, percentage: 9.71 },
+    { region: 'global', displayName: 'Global Services', cost: 692.49, percentage: 9.50 },
+    { region: 'us-west-2', displayName: 'US West (Oregon)', cost: 12.77, percentage: 0.18 },
+    { region: 'eu-west-1', displayName: 'Europe (Ireland)', cost: 5.18, percentage: 0.07 },
+    { region: 'ap-northeast-1', displayName: 'Asia Pacific (Tokyo)', cost: 3.56, percentage: 0.05 }
+  ];
+  
+  return regions.map(region => ({
+    ...region,
+    totalCost: region.cost,
+    services: [
+      { service: 'EC2', cost: region.cost * 0.4, percentage: 40 },
+      { service: 'S3', cost: region.cost * 0.2, percentage: 20 },
+      { service: 'RDS', cost: region.cost * 0.15, percentage: 15 },
+      { service: 'CloudFront', cost: region.cost * 0.15, percentage: 15 },
+      { service: 'Lambda', cost: region.cost * 0.1, percentage: 10 }
+    ],
+    trend: region.percentage > 50 ? 'increasing' : region.percentage > 10 ? 'stable' : 'decreasing'
+  } as RegionalCostBreakdown));
+};
 
 // 데모 데이터
 const generateDemoData = (): ServiceCost[] => [
@@ -313,6 +448,12 @@ export const useHauntedStore = create<HauntedStore>((set, get) => ({
     showDetails: false
   },
   shareData: null,
+  
+  // 🎃 새로운 차트 데이터 초기 상태 (New Chart Data Initial State)
+  monthlyCosts: [],
+  costForecast: null,
+  regionalBreakdown: [],
+  showAdvancedCharts: false,
 
   setServices: (services) => set({ services, lastUpdated: new Date() }),
   
@@ -721,5 +862,142 @@ export const useHauntedStore = create<HauntedStore>((set, get) => ({
         sharedBy: 'Haunted AWS Cost Guard'
       }
     };
+  },
+
+  // 🎃 새로운 차트 데이터 액션 구현 (New Chart Data Action Implementation)
+  setMonthlyCosts: (costs) => set({ monthlyCosts: costs }),
+  
+  setCostForecast: (forecast) => set({ costForecast: forecast }),
+  
+  setRegionalBreakdown: (breakdown) => set({ regionalBreakdown: breakdown }),
+  
+  setShowAdvancedCharts: (show) => set({ showAdvancedCharts: show }),
+  
+  loadAdvancedCostData: async () => {
+    const { demoMode, awsCredentials } = get();
+    console.log('🎃 Starting loadAdvancedCostData - demoMode:', demoMode, 'awsCredentials:', !!awsCredentials);
+    
+    // 데모 모드에서는 전역 isLoading을 사용하지 않음
+    if (!demoMode) {
+      set({ isLoading: true, error: null });
+    }
+    
+    try {
+      if (demoMode) {
+        // 🎃 백엔드에서 12개월 데이터 가져오기 (Fetch 12 months data from backend)
+        console.log('🎃 Loading monthly haunted costs from backend...');
+        
+        try {
+          const monthlyResponse = await networkService.get('/api/cost/demo/monthly');
+          
+          if (monthlyResponse.data.success) {
+            const monthlyHauntedData = monthlyResponse.data.data;
+            console.log('🎃 Monthly data received from backend:', monthlyHauntedData.length, 'months');
+            
+            // 백엔드 데이터를 프론트엔드 형식으로 변환
+            const formattedMonthlyCosts: MonthlyCost[] = monthlyHauntedData.map((item: any) => ({
+              month: item.month,
+              year: parseInt(item.month.split('-')[0]),
+              cost: item.cost,
+              currency: 'USD',
+              services: item.services
+            }));
+            
+            const demoCostForecast = generateDemoCostForecast();
+            const demoRegionalBreakdown = generateDemoRegionalBreakdown();
+            
+            console.log('🎃 Setting state with backend monthly data...');
+            set({
+              monthlyCosts: formattedMonthlyCosts,
+              costForecast: demoCostForecast,
+              regionalBreakdown: demoRegionalBreakdown,
+              error: null
+            });
+            
+            console.log('🎃 Backend monthly data set successfully');
+          } else {
+            throw new Error('Failed to fetch monthly data from backend');
+          }
+        } catch (backendError) {
+          console.warn('🎃 Backend monthly data failed, using fallback demo data:', backendError);
+          
+          // 백엔드 실패 시 기존 데모 데이터 사용
+          const demoMonthlyCosts = generateDemoMonthlyCosts();
+          const demoCostForecast = generateDemoCostForecast();
+          const demoRegionalBreakdown = generateDemoRegionalBreakdown();
+          
+          set({
+            monthlyCosts: demoMonthlyCosts,
+            costForecast: demoCostForecast,
+            regionalBreakdown: demoRegionalBreakdown,
+            error: null
+          });
+        }
+      } else if (awsCredentials) {
+        // AWS 실제 데이터 로드
+        try {
+          const response = await networkService.get('/api/cost/advanced-analytics');
+          
+          if (response.data.success) {
+            const { monthlyCosts, costForecast, regionalBreakdown } = response.data.data;
+            
+            set({
+              monthlyCosts,
+              costForecast,
+              regionalBreakdown,
+              isLoading: false,
+              error: null
+            });
+          } else {
+            throw new Error(response.data.error || 'Failed to load advanced cost data');
+          }
+        } catch (error) {
+          console.error('AWS advanced analytics failed, falling back to demo data:', error);
+          
+          // AWS 실패 시 데모 데이터로 폴백
+          const demoMonthlyCosts = generateDemoMonthlyCosts();
+          const demoCostForecast = generateDemoCostForecast();
+          const demoRegionalBreakdown = generateDemoRegionalBreakdown();
+          
+          set({
+            monthlyCosts: demoMonthlyCosts,
+            costForecast: demoCostForecast,
+            regionalBreakdown: demoRegionalBreakdown,
+            isLoading: false,
+            error: 'AWS connection failed, showing demo data'
+          });
+        }
+      } else {
+        // 자격 증명이 없는 경우
+        set({
+          isLoading: false,
+          error: 'AWS credentials required'
+        });
+      }
+    } catch (error) {
+      console.error('Critical error in loadAdvancedCostData:', error);
+      
+      // 에러 발생 시에도 데모 데이터로 폴백
+      try {
+        console.log('🎃 Error occurred, falling back to demo data...');
+        const demoMonthlyCosts = generateDemoMonthlyCosts();
+        const demoCostForecast = generateDemoCostForecast();
+        const demoRegionalBreakdown = generateDemoRegionalBreakdown();
+        
+        set({
+          monthlyCosts: demoMonthlyCosts,
+          costForecast: demoCostForecast,
+          regionalBreakdown: demoRegionalBreakdown,
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred'
+        });
+      } catch (fallbackError) {
+        console.error('🎃 Even fallback failed:', fallbackError);
+        set({
+          isLoading: false,
+          error: 'Critical error: Unable to load any data'
+        });
+      }
+    }
   }
 }));

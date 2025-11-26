@@ -502,6 +502,114 @@ router.get('/aws/test-connection', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /cost/demo/monthly:
+ *   get:
+ *     summary: 🎃 Get spooky monthly cost data (Jan-Dec)
+ *     description: Retrieve 12 months of haunted cost data for the monthly trends chart
+ *     tags: [🎭 Demo Mode]
+ *     responses:
+ *       200:
+ *         description: Monthly cost data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       month:
+ *                         type: string
+ *                         example: "2024-01"
+ *                       cost:
+ *                         type: number
+ *                         example: 5432.10
+ *                       services:
+ *                         type: object
+ *       500:
+ *         description: Failed to retrieve monthly data
+ */
+// GET /api/cost/demo/monthly - Get 12 months of spooky cost data
+router.get('/demo/monthly', (req: Request, res: Response) => {
+  try {
+    const monthlyHauntedData = demoDataService.conjureMonthlyHauntedCosts();
+    const response: ApiResponse<typeof monthlyHauntedData> = {
+      success: true,
+      data: monthlyHauntedData,
+      message: 'Monthly haunted cost data conjured successfully 🎃'
+    };
+    res.json(response);
+  } catch (banishedError) {
+    console.error('👻 Failed to conjure monthly data:', banishedError);
+    const response: ApiResponse<null> = {
+      success: false,
+      error: 'The spirits failed to materialize monthly cost data'
+    };
+    res.status(500).json(response);
+  }
+});
+
+/**
+ * @swagger
+ * /cost/advanced-analytics:
+ *   get:
+ *     summary: 📈 Get advanced cost analytics
+ *     description: Retrieve comprehensive cost analytics including monthly trends, forecasts, and regional breakdowns
+ *     tags: [📊 Advanced Analytics]
+ *     responses:
+ *       200:
+ *         description: Advanced analytics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     monthlyCosts:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     costForecast:
+ *                       type: object
+ *                     regionalBreakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *       500:
+ *         description: Failed to retrieve analytics
+ */
+// GET /api/cost/advanced-analytics - Get advanced cost analytics
+router.get('/advanced-analytics', async (req: Request, res: Response) => {
+  try {
+    const analyticsData = await awsService.getAdvancedAnalytics();
+    const response: ApiResponse<typeof analyticsData> = {
+      success: true,
+      data: analyticsData,
+      message: 'Advanced analytics retrieved successfully'
+    };
+    res.json(response);
+  } catch (error) {
+    console.error('Advanced analytics error:', error);
+    const response: ApiResponse<null> = {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to retrieve advanced analytics'
+    };
+    res.status(500).json(response);
+  }
+});
+
 // GET /api/cost/health - Health check endpoint
 router.get('/health', (req: Request, res: Response) => {
   const response: ApiResponse<{ status: string; timestamp: string }> = {

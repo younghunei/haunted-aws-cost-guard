@@ -1,0 +1,19 @@
+{
+  "name": "Accessibility Guardian 🕷️♿",
+  "description": "Ensure accessibility compliance when UI components are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "src/components/*.tsx",
+      "src/App.tsx",
+      "src/styles/*.css"
+    ]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A UI component has been modified. Please review for accessibility:\n1. Check ARIA labels and roles\n2. Verify keyboard navigation support\n3. Ensure color contrast meets WCAG standards (even with Halloween colors!)\n4. Test screen reader compatibility\n5. Validate focus management\n6. Check if animations respect prefers-reduced-motion\n\nMake sure our haunted mansion is accessible to all spirits! 👻🎃"
+    }
+  ],
+  "enabled": true
+}

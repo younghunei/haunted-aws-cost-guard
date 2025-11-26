@@ -1,0 +1,20 @@
+{
+  "name": "Cost Data Validator 💰🦇",
+  "description": "Validate AWS cost data handling and ensure proper error handling when cost-related services are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "backend/src/services/awsService.ts",
+      "backend/src/services/demoDataService.ts",
+      "backend/src/routes/costRoutes.ts",
+      "src/store/hauntedStore.ts"
+    ]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "AWS cost data handling code has been modified. Please:\n1. Validate data transformation logic for accuracy\n2. Check error handling for AWS API failures\n3. Verify demo data matches real AWS cost structure\n4. Test edge cases (zero costs, missing data, large numbers)\n5. Ensure proper TypeScript types for cost data\n6. Check if Halloween theme variables are used consistently\n\nRemember: Accurate cost data is scarier than any ghost! 👻💸"
+    }
+  ],
+  "enabled": true
+}

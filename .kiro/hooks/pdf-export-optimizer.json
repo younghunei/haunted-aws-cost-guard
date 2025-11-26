@@ -1,0 +1,21 @@
+{
+  "name": "PDF Export Optimizer 📄👻",
+  "description": "Optimize PDF export functionality and test PDF generation when export-related files are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "src/utils/pdfUtils.ts",
+      "src/styles/pdf-export.css",
+      "src/services/exportService.ts",
+      "src/components/ExportButton.tsx",
+      "src/components/ExportPanel.tsx"
+    ]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A PDF export related file has been modified. Please:\n1. Review the changes for potential performance issues\n2. Check if PDF styling is consistent with Halloween theme\n3. Run PDF export tests if available\n4. Suggest optimizations for large datasets\n5. Verify accessibility compliance for exported PDFs\n\nFocus on ensuring the spooky theme is maintained in exported documents! 🎃"
+    }
+  ],
+  "enabled": true
+}

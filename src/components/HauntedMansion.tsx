@@ -7,6 +7,7 @@ import { CostDetailPanel } from './CostDetailPanel';
 import { BudgetPanel } from './BudgetPanel';
 import { ExportButton } from './ExportButton';
 import { MansionSkeleton } from './LoadingStates';
+import { AdvancedAnalyticsDashboard } from './AdvancedAnalyticsDashboard';
 import { useHauntedStore } from '../store/hauntedStore';
 import { shareService } from '../services/shareService';
 import { performanceMonitor, PerformanceMetrics, QualitySettings } from '../services/performanceMonitor';
@@ -22,7 +23,9 @@ export const HauntedMansion: React.FC = () => {
     loadFromShareData,
     shareData,
     isLoading,
-    resetToHome
+    resetToHome,
+    showAdvancedCharts,
+    setShowAdvancedCharts
   } = useHauntedStore();
   const [mansionDimensions, setMansionDimensions] = useState({ width: 1200, height: 800 });
   const [showShareNotification, setShowShareNotification] = useState(false);
@@ -99,6 +102,11 @@ export const HauntedMansion: React.FC = () => {
         case 'H':
           event.preventDefault();
           resetToHome();
+          break;
+        case 'a':
+        case 'A':
+          event.preventDefault();
+          setShowAdvancedCharts(true);
           break;
       }
     };
@@ -340,6 +348,19 @@ export const HauntedMansion: React.FC = () => {
             {/* Export Button */}
             <ExportButton />
             
+            {/* Advanced Analytics Button */}
+            <motion.button
+              onClick={() => setShowAdvancedCharts(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white rounded-lg font-medium transition-all shadow-lg border border-cyan-500/50"
+              whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(6, 182, 212, 0.5)" }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Advanced Analytics Dashboard"
+              title="Advanced Analytics Dashboard"
+            >
+              <span className="text-lg">📈</span>
+              <span className="text-sm">Analytics</span>
+            </motion.button>
+            
             <motion.button
               onClick={() => setShowBudgetPanel(true)}
               className="relative flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white rounded-lg font-medium transition-all shadow-lg border border-purple-500/50"
@@ -503,6 +524,12 @@ export const HauntedMansion: React.FC = () => {
       {/* Budget Management Panel */}
       <BudgetPanel />
 
+      {/* Advanced Analytics Dashboard */}
+      <AdvancedAnalyticsDashboard 
+        isOpen={showAdvancedCharts}
+        onClose={() => setShowAdvancedCharts(false)}
+      />
+
       {/* Share Notification */}
       <AnimatePresence>
         {showShareNotification && shareData && (
@@ -572,7 +599,7 @@ export const HauntedMansion: React.FC = () => {
       <div className="sr-only">
         <p>
           Use arrow keys to navigate between rooms, Enter to select, Escape to close panels, 
-          B for budget management, E for export options, F1 for help.
+          B for budget management, A for advanced analytics, H for home, F1 for help.
         </p>
       </div>
 

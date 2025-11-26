@@ -1,0 +1,20 @@
+{
+  "name": "Performance Monitor 🚀👻",
+  "description": "Monitor performance when core components are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "src/components/HauntedMansion.tsx",
+      "src/components/AdvancedAnalyticsDashboard.tsx",
+      "src/store/hauntedStore.ts",
+      "src/services/*.ts"
+    ]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A performance-critical file has been modified. Please:\n1. Check for potential performance bottlenecks\n2. Verify proper memoization usage (React.memo, useMemo, useCallback)\n3. Look for unnecessary re-renders\n4. Check bundle size impact\n5. Suggest optimizations for large datasets\n6. Ensure animations are 60fps smooth\n\nKeep our haunted mansion running at supernatural speeds! ⚡🏚️"
+    }
+  ],
+  "enabled": true
+}

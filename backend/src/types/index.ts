@@ -28,6 +28,40 @@ export interface ServiceCost {
   trend: 'increasing' | 'decreasing' | 'stable';
 }
 
+// 🎃 새로운 차트 데이터 타입들 (New Chart Data Types)
+export interface MonthlyCost {
+  month: string;
+  year: number;
+  cost: number;
+  currency: string;
+  services: { [serviceName: string]: number };
+}
+
+export interface CostForecast {
+  currentMonthCost: number;
+  projectedMonthEndCost: number;
+  confidence: number; // 0-1 범위의 예측 신뢰도
+  trend: 'increasing' | 'decreasing' | 'stable';
+  dailyProjections: Array<{
+    date: string;
+    projectedCost: number;
+    actualCost?: number;
+  }>;
+}
+
+export interface RegionalCostBreakdown {
+  region: string;
+  displayName: string;
+  totalCost: number;
+  percentage: number;
+  services: Array<{
+    service: string;
+    cost: number;
+    percentage: number;
+  }>;
+  trend: 'increasing' | 'decreasing' | 'stable';
+}
+
 export interface RegionCost {
   region: string;
   cost: number;

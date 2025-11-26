@@ -242,6 +242,49 @@ export class DemoDataService {
     };
   }
 
+  // 🎃 1월부터 12월까지의 월별 비용 데이터 생성 (Generate monthly cost data from January to December)
+  public conjureMonthlyHauntedCosts() {
+    const currentYear = new Date().getFullYear();
+    const spookyMonths = [];
+    
+    // 각 월별로 할로윈 테마의 비용 데이터 생성 - 더 현실적인 패턴
+    for (let month = 1; month <= 12; month++) {
+      // 계절적 변동: 여름(6-8월)과 연말(11-12월)에 비용 증가
+      let seasonalMultiplier = 1.0;
+      if (month >= 6 && month <= 8) {
+        seasonalMultiplier = 1.3; // 여름 트래픽 증가
+      } else if (month >= 11 && month <= 12) {
+        seasonalMultiplier = 1.5; // 연말 쇼핑 시즌
+      } else if (month >= 1 && month <= 2) {
+        seasonalMultiplier = 0.8; // 연초 조용한 시기
+      }
+      
+      // 월별 랜덤 변동 (±15%)
+      const randomVariation = 0.85 + (Math.random() * 0.3);
+      
+      // 각 서비스별로 다른 패턴 적용 - 더 현실적인 비용 범위
+      const monthlyServices = {
+        EC2: Math.round(2500 * seasonalMultiplier * randomVariation),
+        S3: Math.round(680 * (seasonalMultiplier * 0.8 + 0.2) * randomVariation), // S3는 상대적으로 안정적
+        RDS: Math.round(1780 * seasonalMultiplier * randomVariation),
+        Lambda: Math.round(312 * (seasonalMultiplier * 1.2) * randomVariation), // Lambda는 트래픽에 더 민감
+        CloudFront: Math.round(4200 * (seasonalMultiplier * 1.1) * randomVariation), // CDN도 트래픽에 민감
+        DynamoDB: Math.round(900 * seasonalMultiplier * randomVariation)
+      };
+      
+      const totalCost = Object.values(monthlyServices).reduce((sum, cost) => sum + cost, 0);
+      
+      spookyMonths.push({
+        month: `${currentYear}-${month.toString().padStart(2, '0')}`,
+        cost: totalCost,
+        services: monthlyServices
+      });
+    }
+    
+    console.log('🎃 Generated spooky monthly costs:', spookyMonths);
+    return spookyMonths;
+  }
+
   public getDemoScenarios() {
     return [
       {

@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": ["search_aws_documentation", "get_aws_service_info"]
+    },
+    "aws-kb": {
+      "command": "uvx",
+      "args": ["awslabs.aws-kb-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": ["search_aws_kb", "get_kb_article"]
+    }
+  }
+}

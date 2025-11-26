@@ -275,6 +275,250 @@ export class AWSService {
     return Array.from(serviceMap.values()).filter(service => service.totalCost > 0);
   }
 
+  // 🎃 고급 분석 데이터 생성 메서드 (Advanced Analytics Data Generation Methods)
+  public async getAdvancedAnalytics(timeRange?: { start: Date; end: Date }): Promise<{
+    monthlyCosts: any[];
+    costForecast: any;
+    regionalBreakdown: any[];
+  }> {
+    if (!this.costExplorerClient) {
+      throw new Error('AWS credentials not validated. Please validate credentials first.');
+    }
+
+    try {
+      // 월별 비용 데이터 (지난 6개월)
+      const monthlyCosts = await this.getMonthlyCostData();
+      
+      // 비용 예측 데이터
+      const costForecast = await this.generateCostForecast();
+      
+      // 리전별 분석 데이터
+      const regionalBreakdown = await this.getRegionalAnalysis();
+
+      return {
+        monthlyCosts,
+        costForecast,
+        regionalBreakdown
+      };
+    } catch (error) {
+      console.error('Failed to generate advanced analytics:', error);
+      throw error;
+    }
+  }
+
+  private async getMonthlyCostData(): Promise<any[]> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 6);
+
+    const command = new GetCostAndUsageCommand({
+      TimePeriod: {
+        Start: startDate.toISOString().split('T')[0],
+        End: endDate.toISOString().split('T')[0]
+      },
+      Granularity: 'MONTHLY',
+      Metrics: ['BlendedCost'],
+      GroupBy: [
+        {
+          Type: 'DIMENSION',
+          Key: 'SERVICE'
+        }
+      ]
+    });
+
+    const result = await this.costExplorerClient!.send(command);
+    
+    // 월별 데이터 변환
+    const monthlyData: any[] = [];
+    
+    if (result.ResultsByTime) {
+      for (const timeResult of result.ResultsByTime) {
+        const month = timeResult.TimePeriod?.Start || '';
+        const services: { [key: string]: number } = {};
+        let totalCost = 0;
+
+        if (timeResult.Groups) {
+          for (const group of timeResult.Groups) {
+            const serviceName = group.Keys?.[0] || 'Unknown';
+            const cost = parseFloat(group.Metrics?.['BlendedCost']?.Amount || '0');
+            services[serviceName] = cost;
+            totalCost += cost;
+          }
+        }
+
+        monthlyData.push({
+          month,
+          year: new Date(month).getFullYear(),
+          cost: totalCost,
+          currency: 'USD',
+          services
+        });
+      }
+    }
+
+    return monthlyData;
+  }
+
+  private async generateCostForecast(): Promise<any> {
+    // 현재 월의 일별 비용 데이터 가져오기
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const command = new GetCostAndUsageCommand({
+      TimePeriod: {
+        Start: startOfMonth.toISOString().split('T')[0],
+        End: now.toISOString().split('T')[0]
+      },
+      Granularity: 'DAILY',
+      Metrics: ['BlendedCost']
+    });
+
+    const result = await this.costExplorerClient!.send(command);
+    
+    let currentMonthCost = 0;
+    const dailyProjections = [];
+
+    if (result.ResultsByTime) {
+      // 실제 비용 계산
+      for (const timeResult of result.ResultsByTime) {
+        const cost = parseFloat(timeResult.Total?.['BlendedCost']?.Amount || '0');
+        currentMonthCost += cost;
+      }
+
+      // 일별 예측 생성
+      const daysInMonth = endOfMonth.getDate();
+      const currentDay = now.getDate();
+      const dailyAverage = currentMonthCost / currentDay;
+      const projectedMonthEndCost = dailyAverage * daysInMonth;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(now.getFullYear(), now.getMonth(), day).toISOString().split('T')[0];
+        const projectedCost = dailyAverage * day;
+        const actualCost = day <= currentDay ? (currentMonthCost / currentDay) * day : undefined;
+
+        dailyProjections.push({
+          date,
+          projectedCost,
+          actualCost
+        });
+      }
+
+      return {
+        currentMonthCost,
+        projectedMonthEndCost,
+        confidence: Math.min(0.95, 0.6 + (currentDay / daysInMonth) * 0.35), // 신뢰도는 월 진행도에 따라 증가
+        trend: projectedMonthEndCost > currentMonthCost * 1.1 ? 'increasing' : 
+               projectedMonthEndCost < currentMonthCost * 0.9 ? 'decreasing' : 'stable',
+        dailyProjections
+      };
+    }
+
+    return null;
+  }
+
+  private async getRegionalAnalysis(): Promise<any[]> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+
+    const command = new GetCostAndUsageCommand({
+      TimePeriod: {
+        Start: startDate.toISOString().split('T')[0],
+        End: endDate.toISOString().split('T')[0]
+      },
+      Granularity: 'MONTHLY',
+      Metrics: ['BlendedCost'],
+      GroupBy: [
+        {
+          Type: 'DIMENSION',
+          Key: 'REGION'
+        },
+        {
+          Type: 'DIMENSION',
+          Key: 'SERVICE'
+        }
+      ]
+    });
+
+    const result = await this.costExplorerClient!.send(command);
+    
+    const regionMap = new Map<string, any>();
+    let totalCost = 0;
+
+    if (result.ResultsByTime) {
+      for (const timeResult of result.ResultsByTime) {
+        if (timeResult.Groups) {
+          for (const group of timeResult.Groups) {
+            const [region, service] = group.Keys || [];
+            const cost = parseFloat(group.Metrics?.['BlendedCost']?.Amount || '0');
+            
+            if (region && service && cost > 0) {
+              totalCost += cost;
+              
+              if (!regionMap.has(region)) {
+                regionMap.set(region, {
+                  region,
+                  displayName: this.getRegionDisplayName(region),
+                  totalCost: 0,
+                  services: new Map<string, number>()
+                });
+              }
+              
+              const regionData = regionMap.get(region);
+              regionData.totalCost += cost;
+              
+              const currentServiceCost = regionData.services.get(service) || 0;
+              regionData.services.set(service, currentServiceCost + cost);
+            }
+          }
+        }
+      }
+    }
+
+    // 리전 데이터 변환 및 정렬
+    const regionalBreakdown = Array.from(regionMap.values())
+      .map(region => ({
+        region: region.region,
+        displayName: region.displayName,
+        totalCost: region.totalCost,
+        percentage: totalCost > 0 ? (region.totalCost / totalCost) * 100 : 0,
+        services: Array.from(region.services.entries()).map(([service, cost]) => ({
+          service,
+          cost,
+          percentage: region.totalCost > 0 ? (cost / region.totalCost) * 100 : 0
+        })).sort((a, b) => b.cost - a.cost),
+        trend: region.totalCost > totalCost * 0.3 ? 'increasing' : 
+               region.totalCost > totalCost * 0.1 ? 'stable' : 'decreasing'
+      }))
+      .sort((a, b) => b.totalCost - a.totalCost);
+
+    return regionalBreakdown;
+  }
+
+  private getRegionDisplayName(region: string): string {
+    const regionNames: { [key: string]: string } = {
+      'us-east-1': 'US East (N. Virginia)',
+      'us-east-2': 'US East (Ohio)',
+      'us-west-1': 'US West (N. California)',
+      'us-west-2': 'US West (Oregon)',
+      'eu-west-1': 'Europe (Ireland)',
+      'eu-west-2': 'Europe (London)',
+      'eu-west-3': 'Europe (Paris)',
+      'eu-central-1': 'Europe (Frankfurt)',
+      'ap-northeast-1': 'Asia Pacific (Tokyo)',
+      'ap-northeast-2': 'Asia Pacific (Seoul)',
+      'ap-southeast-1': 'Asia Pacific (Singapore)',
+      'ap-southeast-2': 'Asia Pacific (Sydney)',
+      'ap-south-1': 'Asia Pacific (Mumbai)',
+      'sa-east-1': 'South America (São Paulo)',
+      'ca-central-1': 'Canada (Central)',
+      'global': 'Global Services'
+    };
+    
+    return regionNames[region] || region;
+  }
+
   private addRegionalBreakdown(serviceMap: Map<string, ServiceCost>, regionalData: GetCostAndUsageCommandOutput): void {
     if (!regionalData.ResultsByTime) return;
 

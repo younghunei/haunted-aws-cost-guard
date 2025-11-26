@@ -1,0 +1,19 @@
+{
+  "name": "E2E Test Runner 🎭🧪",
+  "description": "Run end-to-end tests when critical user flows are modified",
+  "trigger": {
+    "type": "manual",
+    "button_text": "Run Haunted E2E Tests 🎃"
+  },
+  "actions": [
+    {
+      "type": "shell_command",
+      "command": "npm run test:e2e"
+    },
+    {
+      "type": "agent_execution",
+      "prompt": "E2E tests have been executed. Please:\n1. Analyze test results for any failures\n2. Check visual regression test outcomes\n3. Verify critical user journeys are working\n4. Suggest fixes for any broken functionality\n5. Update test scenarios if needed\n\nEnsure our haunted mansion provides a spook-tacular user experience! 👻🏚️"
+    }
+  ],
+  "enabled": true
+}

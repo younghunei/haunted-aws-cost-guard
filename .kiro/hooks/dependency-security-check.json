@@ -1,0 +1,24 @@
+{
+  "name": "Dependency Security Check 🔒🕷️",
+  "description": "Check for security vulnerabilities when package files are modified",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "package.json",
+      "backend/package.json",
+      "package-lock.json",
+      "backend/package-lock.json"
+    ]
+  },
+  "actions": [
+    {
+      "type": "shell_command",
+      "command": "npm audit"
+    },
+    {
+      "type": "agent_execution",
+      "prompt": "Package dependencies have been modified. Please:\n1. Review npm audit results for vulnerabilities\n2. Check for outdated packages that need updates\n3. Verify new dependencies are from trusted sources\n4. Ensure no malicious packages were added\n5. Check license compatibility\n6. Suggest security improvements\n\nProtect our haunted mansion from malicious spirits! 🛡️👻"
+    }
+  ],
+  "enabled": true
+}
